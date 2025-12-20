@@ -39,28 +39,64 @@ const params = new URLSearchParams(window.location.search);
 const imgUrl = params.get("img");
 
 if (!imgUrl) {
-alert("رابط الصورة غير موجود");
-throw new Error("No image URL");
+  alert("رابط الصورة غير موجود");
+  throw new Error("No image URL");
 }
 
-const img = new Image();
-img.crossOrigin = "anonymous";
-img.src = imgUrl;
+// دالة لفحص إذا تم تحميل الصورة بنجاح
+function loadImage(url, retries = 10, delay = 1000) {
+  return new Promise((resolve, reject) => {
+    const attemptLoad = (count) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = url;
 
-img.onload = () => {
-const pdf = new jsPDF("p", "mm", "a4");
+      img.onload = () => resolve(img);
+      img.onerror = () => {
+        if (count > 0) {
+          setTimeout(() => attemptLoad(count - 1), delay); // إعادة المحاولة بعد وقت محدد
+        } else {
+          reject(new Error("فشل تحميل الصورة بعد عدة محاولات"));
+        }
+      };
+    };
 
-const pageWidth = pdf.internal.pageSize.getWidth();
-const pageHeight = (img.height * pageWidth) / img.width;
+    attemptLoad(retries);
+  });
+}
 
-pdf.addImage(img, "PNG", 0, 0, pageWidth, pageHeight);
-pdf.save("فاتورة.pdf");
-};
+(async () => {
+  try {
+    const img = await loadImage(imgUrl, 15, 1000); // 15 محاولة بفاصل ثانية واحدة
 
-img.onerror = () => {
-alert("فشل تحميل الصورة");
-};
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth;
+    const imgHeight = (img.height * pageWidth) / img.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    while (heightLeft > 0) {
+      if (position > 0) pdf.addPage();
+
+      const renderHeight = heightLeft > pageHeight ? pageHeight : heightLeft;
+      pdf.addImage(img, "PNG", 0, -position, imgWidth, imgHeight);
+
+      heightLeft -= pageHeight;
+      position += pageHeight;
+    }
+
+    pdf.save("فاتورة.pdf");
+  } catch (error) {
+    alert(error.message);
+  }
+})();
 </script>
+
+
 
 </body>
 </html>
