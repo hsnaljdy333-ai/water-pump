@@ -2,34 +2,210 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>تحويل الصورة إلى PDF</title>
+<title>تحويل الصورة إلى PDF وإرسال الفاتورة</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body {
-font-family: Tahoma;
-background:#f5f5f5;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+font-family: Tahoma, Arial, sans-serif;
+background: #f5f5f5;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+margin: 0;
+padding: 20px;
 }
-.box {
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,.1);
-text-align:center;
+.container {
+background: white;
+padding: 30px;
+border-radius: 15px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+text-align: center;
+width: 100%;
+max-width: 800px;
+}
+h1 {
+color: #2E7D32;
+margin-bottom: 20px;
+}
+h2 {
+color: #4CAF50;
+margin-bottom: 15px;
+}
+.sms-section {
+background: #F8F9FA;
+padding: 25px;
+border-radius: 10px;
+margin-top: 30px;
+border-right: 4px solid #4CAF50;
+}
+.input-group {
+margin-bottom: 20px;
+text-align: right;
+}
+.input-group label {
+display: block;
+margin-bottom: 8px;
+font-weight: bold;
+color: #333;
+}
+.input-group input {
+width: 100%;
+padding: 12px 15px;
+border: 2px solid #ddd;
+border-radius: 8px;
+font-size: 16px;
+transition: border-color 0.3s;
+direction: ltr;
+text-align: left;
+}
+.input-group input:focus {
+border-color: #4CAF50;
+outline: none;
+}
+.btn {
+background: #4CAF50;
+color: white;
+border: none;
+padding: 14px 28px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+margin: 10px 5px;
+transition: all 0.3s;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 180px;
+}
+.btn:hover {
+background: #2E7D32;
+transform: translateY(-2px);
+}
+.btn-sms {
+background: #2196F3;
+}
+.btn-sms:hover {
+background: #1976D2;
+}
+.btn-download {
+background: #FF9800;
+}
+.btn-download:hover {
+background: #F57C00;
+}
+.btn-container {
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+gap: 15px;
+margin-top: 25px;
+}
+.sms-info {
+background: #E8F5E9;
+padding: 15px;
+border-radius: 8px;
+margin-top: 20px;
+text-align: right;
+font-size: 14px;
+color: #2E7D32;
+border-right: 3px solid #4CAF50;
+}
+.loading {
+font-size: 18px;
+color: #666;
+margin: 20px 0;
+}
+.spinner {
+display: inline-block;
+width: 20px;
+height: 20px;
+border: 3px solid rgba(76, 175, 80, 0.3);
+border-radius: 50%;
+border-top-color: #4CAF50;
+animation: spin 1s ease-in-out infinite;
+margin-right: 10px;
+}
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+.status-message {
+padding: 12px;
+border-radius: 8px;
+margin: 15px 0;
+text-align: center;
+}
+.success {
+background: #E8F5E9;
+color: #2E7D32;
+border: 1px solid #C8E6C9;
+}
+.error {
+background: #FFEBEE;
+color: #D32F2F;
+border: 1px solid #FFCDD2;
+}
+.info {
+background: #E3F2FD;
+color: #1976D2;
+border: 1px solid #BBDEFB;
+}
+@media (max-width: 600px) {
+.container {
+padding: 20px;
+}
+.btn-container {
+flex-direction: column;
+}
+.btn {
+width: 100%;
+margin: 5px 0;
+}
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-<h2>جاري تحويل الفاتورة إلى PDF...</h2>
-<p>سيتم التحميل تلقائيًا</p>
+<div class="container">
+    <h1>🚀 نظام تحويل الفاتورة وإرسالها</h1>
+    
+    <div id="conversionSection">
+        <div class="loading">
+            <span class="spinner"></span>
+            <span>جاري تحويل الفاتورة إلى PDF...</span>
+        </div>
+        <p>سيتم تحميل ملف PDF تلقائيًا بعد الانتهاء</p>
+    </div>
+    
+    <div id="smsSection" class="sms-section" style="display: none;">
+        <h2>📱 إرسال الفاتورة عبر الرسائل النصية (SMS)</h2>
+        
+        <div class="sms-info">
+            <strong>معلومات:</strong> هذه الميزة لن ترسل الرسالة تلقائيًا، بل ستفتح تطبيق الرسائل على هاتفك مع نص الفاتورة جاهزاً، وعليك الضغط على زر الإرسال بنفسك.
+        </div>
+        
+        <div class="input-group">
+            <label for="phoneNumber">رقم الهاتف (مع مفتاح الدولة):</label>
+            <input type="tel" id="phoneNumber" placeholder="مثال: +966555555555" value="+966">
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn btn-sms" onclick="sendSMS()">
+                <span style="margin-left: 8px;">📤</span>
+                فتح تطبيق الرسائل للإرسال
+            </button>
+            <button class="btn btn-download" onclick="downloadSMSFile()">
+                <span style="margin-left: 8px;">📄</span>
+                تحميل ملف نص الفاتورة
+            </button>
+        </div>
+        
+        <div id="smsStatus" class="status-message" style="display: none;"></div>
+    </div>
 </div>
 
 <script>
@@ -37,66 +213,240 @@ const { jsPDF } = window.jspdf;
 
 const params = new URLSearchParams(window.location.search);
 const imgUrl = params.get("img");
+let smsFileUrl = '';
+let pdfGenerated = false;
 
 if (!imgUrl) {
-  alert("رابط الصورة غير موجود");
-  throw new Error("No image URL");
+    showError("رابط الصورة غير موجود");
+    throw new Error("No image URL");
+}
+
+// استخراج اسم الملف من الرابط
+function extractFileName(url) {
+    const parts = url.split('/');
+    return parts[parts.length - 1];
+}
+
+// بناء رابط ملف SMS بناءً على رابط الصورة
+function buildSMSFileUrl(imageUrl) {
+    const fileName = extractFileName(imageUrl);
+    const baseName = fileName.replace('.png', '');
+    const smsFileName = `فاتورة_SMS_${baseName.split('_')[1]}_${baseName.split('_')[2]}.txt`;
+    
+    // بناء المسار الأساسي
+    const urlParts = imageUrl.split('/');
+    urlParts.pop(); // إزالة اسم ملف الصورة
+    urlParts.push(smsFileName);
+    
+    return urlParts.join('/');
 }
 
 // دالة لفحص إذا تم تحميل الصورة بنجاح
 function loadImage(url, retries = 10, delay = 1000) {
-  return new Promise((resolve, reject) => {
-    const attemptLoad = (count) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = url;
+    return new Promise((resolve, reject) => {
+        const attemptLoad = (count) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = url;
 
-      img.onload = () => resolve(img);
-      img.onerror = () => {
-        if (count > 0) {
-          setTimeout(() => attemptLoad(count - 1), delay); // إعادة المحاولة بعد وقت محدد
-        } else {
-          reject(new Error("فشل تحميل الصورة بعد عدة محاولات"));
-        }
-      };
-    };
+            img.onload = () => resolve(img);
+            img.onerror = () => {
+                if (count > 0) {
+                    setTimeout(() => attemptLoad(count - 1), delay);
+                } else {
+                    reject(new Error("فشل تحميل الصورة بعد عدة محاولات"));
+                }
+            };
+        };
 
-    attemptLoad(retries);
-  });
+        attemptLoad(retries);
+    });
 }
 
-(async () => {
-  try {
-    const img = await loadImage(imgUrl, 15, 1000); // 15 محاولة بفاصل ثانية واحدة
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgWidth = pageWidth;
-    const imgHeight = (img.height * pageWidth) / img.width;
-
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    while (heightLeft > 0) {
-      if (position > 0) pdf.addPage();
-
-      const renderHeight = heightLeft > pageHeight ? pageHeight : heightLeft;
-      pdf.addImage(img, "PNG", 0, -position, imgWidth, imgHeight);
-
-      heightLeft -= pageHeight;
-      position += pageHeight;
+// دالة لجلب ملف SMS
+async function loadSMSFile() {
+    try {
+        smsFileUrl = buildSMSFileUrl(imgUrl);
+        const response = await fetch(smsFileUrl);
+        
+        if (response.ok) {
+            const text = await response.text();
+            showSuccess("تم تحميل ملف نص الفاتورة بنجاح");
+            return text;
+        } else {
+            // محاولة اسم بديل
+            const alternativeUrl = smsFileUrl.replace('فاتورة_SMS_', 'فاتورة_SMS_');
+            const altResponse = await fetch(alternativeUrl);
+            
+            if (altResponse.ok) {
+                smsFileUrl = alternativeUrl;
+                const text = await altResponse.text();
+                showSuccess("تم تحميل ملف نص الفاتورة بنجاح");
+                return text;
+            }
+            
+            throw new Error("لم يتم العثور على ملف نص الفاتورة");
+        }
+    } catch (error) {
+        console.log("ملاحظة: لم يتم العثور على ملف SMS:", error.message);
+        showInfo("ملاحظة: لم يتم إنشاء ملف نص للفاتورة. يمكنك إرسال رابط الفاتورة يدويًا.");
+        return null;
     }
+}
 
-    pdf.save("فاتورة.pdf");
-  } catch (error) {
-    alert(error.message);
-  }
+// عرض رسالة نجاح
+function showSuccess(message) {
+    const statusDiv = document.getElementById('smsStatus');
+    statusDiv.className = 'status-message success';
+    statusDiv.innerHTML = '✅ ' + message;
+    statusDiv.style.display = 'block';
+}
+
+// عرض رسالة خطأ
+function showError(message) {
+    const statusDiv = document.getElementById('smsStatus');
+    statusDiv.className = 'status-message error';
+    statusDiv.innerHTML = '❌ ' + message;
+    statusDiv.style.display = 'block';
+}
+
+// عرض رسالة معلومات
+function showInfo(message) {
+    const statusDiv = document.getElementById('smsStatus');
+    statusDiv.className = 'status-message info';
+    statusDiv.innerHTML = 'ℹ️ ' + message;
+    statusDiv.style.display = 'block';
+}
+
+// إرسال SMS
+async function sendSMS() {
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    
+    if (!phoneNumber) {
+        showError('يرجى إدخال رقم الهاتف');
+        return;
+    }
+    
+    try {
+        // جلب نص الفاتورة
+        let smsText = '';
+        try {
+            smsText = await loadSMSFile();
+            if (!smsText) {
+                // إذا لم يوجد ملف SMS، نستخدم نص افتراضي مع رابط الفاتورة
+                smsText = `فاتورة مضخة مياه حسن الجعدي\n\nرابط الفاتورة: ${window.location.href}\n\nشكرًا لتعاملكم معنا`;
+            }
+        } catch (error) {
+            smsText = `فاتورة مضخة مياه حسن الجعدي\n\nرابط الفاتورة: ${window.location.href}\n\nشكرًا لتعاملكم معنا`;
+        }
+        
+        // إنشاء رابط SMS
+        const encodedText = encodeURIComponent(smsText);
+        const smsLink = `sms:${phoneNumber}?body=${encodedText}`;
+        
+        // فتح رابط الرسائل
+        window.open(smsLink, '_blank');
+        showSuccess('تم فتح تطبيق الرسائل. يرجى الضغط على زر الإرسال لإرسال الفاتورة.');
+        
+    } catch (error) {
+        showError('حدث خطأ أثناء إعداد الرسالة: ' + error.message);
+    }
+}
+
+// تحميل ملف SMS
+async function downloadSMSFile() {
+    try {
+        const smsText = await loadSMSFile();
+        
+        if (smsText) {
+            // إنشاء رابط تحميل للفيل
+            const blob = new Blob([smsText], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `فاتورة_رسالة_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            showSuccess('تم تحميل ملف نص الفاتورة');
+        } else {
+            showError('لا يوجد ملف نصي للفاتورة');
+        }
+    } catch (error) {
+        showError('حدث خطأ أثناء تحميل الملف: ' + error.message);
+    }
+}
+
+// العملية الرئيسية
+(async () => {
+    try {
+        // تحميل الصورة وإنشاء PDF
+        const img = await loadImage(imgUrl, 15, 1000);
+
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const imgWidth = pageWidth;
+        const imgHeight = (img.height * pageWidth) / img.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        while (heightLeft > 0) {
+            if (position > 0) pdf.addPage();
+
+            const renderHeight = heightLeft > pageHeight ? pageHeight : heightLeft;
+            pdf.addImage(img, "PNG", 0, -position, imgWidth, imgHeight);
+
+            heightLeft -= pageHeight;
+            position += pageHeight;
+        }
+
+        // حفظ PDF
+        pdf.save("فاتورة.pdf");
+        pdfGenerated = true;
+        
+        // تحديث واجهة المستخدم
+        document.getElementById('conversionSection').innerHTML = `
+            <div class="status-message success">
+                ✅ تم تحويل الفاتورة إلى PDF بنجاح وبدأ التحميل تلقائيًا
+            </div>
+        `;
+        
+        // إظهار قسم SMS
+        document.getElementById('smsSection').style.display = 'block';
+        
+        // محاولة تحميل ملف SMS
+        setTimeout(async () => {
+            try {
+                await loadSMSFile();
+            } catch (error) {
+                // تجاهل الخطأ إذا لم يوجد ملف SMS
+            }
+        }, 1000);
+        
+    } catch (error) {
+        document.getElementById('conversionSection').innerHTML = `
+            <div class="status-message error">
+                ❌ ${error.message}
+            </div>
+        `;
+        document.getElementById('smsSection').style.display = 'block';
+        showError('حدث خطأ في تحويل الصورة: ' + error.message);
+    }
 })();
+
+// نسخ رابط الصفحة
+function copyPageUrl() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+        .then(() => showSuccess('تم نسخ رابط الفاتورة'))
+        .catch(() => showError('فشل نسخ الرابط'));
+}
 </script>
-
-
 
 </body>
 </html>
